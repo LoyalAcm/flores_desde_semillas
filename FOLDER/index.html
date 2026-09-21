@@ -119,10 +119,19 @@
       margin-bottom: 0;
     }
 
-    .audio-control {
+    /* Floating music player container */
+    .audio-container {
       position: absolute;
       bottom: 20px;
       right: 20px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .audio-control {
       background: rgba(0, 0, 0, 0.75);
       border: 1px solid rgba(250, 204, 21, 0.5);
       color: #fff;
@@ -130,9 +139,81 @@
       border-radius: 20px;
       font-size: 0.8rem;
       cursor: pointer;
-      z-index: 40;
       backdrop-filter: blur(5px);
       transition: all 0.3s;
+      outline: none;
+    }
+
+    .audio-control:hover {
+      background: rgba(250, 204, 21, 0.2);
+      border-color: #facc15;
+    }
+
+    .audio-options {
+      background: rgba(15, 10, 25, 0.92);
+      border: 1px solid rgba(250, 204, 21, 0.4);
+      padding: 10px 14px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 220px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      transition: all 0.3s ease;
+    }
+
+    .audio-options label {
+      font-size: 0.75rem;
+      color: #fef08a;
+      display: block;
+    }
+
+    .audio-options input[type="file"] {
+      display: none;
+    }
+
+    .file-upload-btn {
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px dashed rgba(250, 204, 21, 0.6);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .file-upload-btn:hover {
+      background: rgba(250, 204, 21, 0.3);
+    }
+
+    .url-input-container {
+      display: flex;
+      gap: 4px;
+    }
+
+    .url-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: #fff;
+      font-size: 0.7rem;
+      outline: none;
+    }
+
+    .url-btn {
+      background: #facc15;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -140,7 +221,10 @@
 
   <div id="sunset-background"></div>
 
-  <audio id="bgMusic" loop src="Raindance.mp3"></audio>
+  <!-- Audio elemento configurado con Raindance.mp3 -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="Raindance.mp3" type="audio/mpeg">
+  </audio>
 
   <div id="counter-ui">
     Toca para florecer el ramo de girasoles: <span id="flower-count">0</span> / 32
@@ -153,7 +237,20 @@
     <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí.</p>
   </div>
 
-  <button class="audio-control" id="audioBtn"> Música</button>
+  <div class="audio-container" id="audioContainer">
+    <div class="audio-options" id="audioOptions">
+      <label>📁 Seleccionar canción local:</label>
+      <label for="musicFileInput" class="file-upload-btn" id="fileLabel">Elegir archivo .mp3</label>
+      <input type="file" id="musicFileInput" accept="audio/*">
+
+      <label style="margin-top: 4px;">🔗 O usar enlace directo MP3:</label>
+      <div class="url-input-container">
+        <input type="text" id="musicUrlInput" class="url-input" placeholder="https://.../cancion.mp3">
+        <button class="url-btn" id="loadUrlBtn">Cargar</button>
+      </div>
+    </div>
+    <button class="audio-control" id="audioBtn">🎵 Reproducir Música</button>
+  </div>
 
   <canvas id="canvas"></canvas>
 
@@ -166,6 +263,11 @@
     const poemCard = document.getElementById('poem-card');
     const audioBtn = document.getElementById('audioBtn');
     const bgMusic = document.getElementById('bgMusic');
+    const musicFileInput = document.getElementById('musicFileInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const musicUrlInput = document.getElementById('musicUrlInput');
+    const loadUrlBtn = document.getElementById('loadUrlBtn');
+    const audioContainer = document.getElementById('audioContainer');
 
     let width, height;
     let flowerCount = 0;
@@ -174,20 +276,60 @@
     const stars = [];
     let isPlaying = false;
 
-    // Control de música
+    // Función auxiliar para iniciar la música de forma segura
+    function startAudio() {
+      if (!isPlaying) {
+        bgMusic.play().then(() => {
+          isPlaying = true;
+          audioBtn.textContent = 'Pausar Música';
+        }).catch((err) => {
+          console.warn("Autoplay restringido por el navegador o archivo no encontrado:", err);
+        });
+      }
+    }
+
+    // Botón de encendido / apagado manual
     audioBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (isPlaying) {
         bgMusic.pause();
-        audioBtn.textContent = 'Reproducir Músiquita';
+        isPlaying = false;
+        audioBtn.textContent = 'Reproducir Música';
       } else {
-        bgMusic.play();
-        audioBtn.textContent = 'pausar musiquita';
+        startAudio();
       }
-      isPlaying = !isPlaying;
     });
 
-    // Clase para las estrellas / luces brillantes de fondo
+    // Cargar archivo MP3 local desde el explorador de archivos
+    musicFileInput.addEventListener('change', (e) => {
+      e.stopPropagation();
+      const file = e.target.files[0];
+      if (file) {
+        const fileURL = URL.createObjectURL(file);
+        bgMusic.src = fileURL;
+        fileLabel.textContent = "✓ " + file.name.substring(0, 18) + "...";
+        isPlaying = false;
+        startAudio();
+      }
+    });
+
+    // Cargar MP3 desde URL externa
+    loadUrlBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const url = musicUrlInput.value.trim();
+      if (url) {
+        bgMusic.src = url;
+        isPlaying = false;
+        startAudio();
+      }
+    });
+
+    // Evitar interacciones accidentales dentro del panel de controles de audio
+    audioContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Fondo estelar animado
     class Star {
       constructor() {
         this.reset();
@@ -223,12 +365,10 @@
         ctx.globalAlpha = this.alpha;
         ctx.fillStyle = this.color;
         
-        // Dibujo de pequeña luz con destello
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cruz sutil de brillo para estrellas más grandes
         if (this.size > 1.8) {
           ctx.strokeStyle = this.color;
           ctx.lineWidth = 0.5;
@@ -246,7 +386,7 @@
 
     function initStars() {
       stars.length = 0;
-      const starCount = Math.floor((width * height) / 8000); // Cantidad proporcional a la pantalla
+      const starCount = Math.floor((width * height) / 8000);
       for (let i = 0; i < starCount; i++) {
         stars.push(new Star());
       }
@@ -425,15 +565,12 @@
       ctx.restore();
     }
 
+    // Interacción al hacer clic en la pantalla
     window.addEventListener('click', (e) => {
-      if (e.target.closest('#audioBtn') || flowerCount >= maxFlowers) return;
+      if (e.target.closest('#audioContainer') || flowerCount >= maxFlowers) return;
 
-      if (!isPlaying) {
-        bgMusic.play().then(() => {
-          isPlaying = true;
-          audioBtn.textContent = 'pausar musiquita';
-        }).catch(() => {});
-      }
+      // Inicia el audio de manera automática en el primer clic de la pantalla
+      startAudio();
 
       const cx = width / 2;
       const cy = height * 0.52;
@@ -466,13 +603,11 @@
     function animate() {
       ctx.clearRect(0, 0, width, height);
 
-      // Dibujar y actualizar estrellas de fondo
       stars.forEach(star => {
         star.update();
         star.draw();
       });
 
-      // Dibujar ramo y girasoles
       drawBouquet();
 
       requestAnimationFrame(animate);
