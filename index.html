@@ -151,7 +151,8 @@
     <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí.</p>
   </div>
 
-  <button class="audio-control" id="audioBtn">🎵 Audio Armónico</button>
+  <button class="audio-control" id="audioBtn"> musiquita</button>
+  <audio id="bgMusic" loop src="Dave - Raindance (ft. Tems).mp3"></audio>
 
   <canvas id="canvas"></canvas>
 
@@ -169,18 +170,22 @@
     const maxFlowers = 32;
     const flowers = [];
 
-    let audioCtx = null;
-    const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+    const bgMusic = document.getElementById('bgMusic');
+    let isPlaying = false;
 
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-    }
+    // Función para alternar reproducir / pausar con el botón
+    audioBtn.addEventListener('click', (e) => {
+      e.stopPropagration();
+    if (isPlaying) {
+      bgMusic.pause ();
+    audioBtn.textContent = 'musiquita';
+  } else {
+    bgMusic.Play();
+  audioBtn.textContent = 'pausar musiquita';
+}
+   isPlaying = !isPlaying:
+});
 
-    function playNote(freq) {
-      if (!audioCtx) return;
-      
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       
@@ -381,7 +386,13 @@
 
       initAudio();
       const noteIndex = flowerCount % notes.length;
-      playNote(notes[noteIndex]);
+      if (!isPlaying) {
+  bgMusic.play().then(() => {
+    isPlaying = true;
+    audioBtn.textContent = '⏸️ Pausar Música';
+  }).catch(() => {
+    // Manejo en caso de que el navegador bloquee el autostart
+  });
 
       const cx = width / 2;
       const cy = height * 0.52;
