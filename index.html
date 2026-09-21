@@ -140,6 +140,9 @@
 
   <div id="sunset-background"></div>
 
+  <!-- 👇 AQUÍ PONES TU CANCIÓN: Reemplaza tu_cancion.mp3 por el nombre de tu archivo -->
+  <audio id="bgMusic" loop src="tu_cancion.mp3"></audio>
+
   <div id="counter-ui">
     Toca para florecer el ramo de girasoles: <span id="flower-count">0</span> / 32
   </div>
@@ -151,8 +154,7 @@
     <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí.</p>
   </div>
 
-  <button class="audio-control" id="audioBtn"> musiquita</button>
-  <audio id="bgMusic" loop src="Dave - Raindance (ft. Tems).mp3"></audio>
+  <button class="audio-control" id="audioBtn">🎵 Música</button>
 
   <canvas id="canvas"></canvas>
 
@@ -164,49 +166,25 @@
     const sunsetBG = document.getElementById('sunset-background');
     const poemCard = document.getElementById('poem-card');
     const audioBtn = document.getElementById('audioBtn');
+    const bgMusic = document.getElementById('bgMusic');
 
     let width, height;
     let flowerCount = 0;
     const maxFlowers = 32;
     const flowers = [];
-
-    const bgMusic = document.getElementById('bgMusic');
     let isPlaying = false;
 
-    // Función para alternar reproducir / pausar con el botón
-    audioBtn.addEventListener('click', (e) => {
-      e.stopPropagration();
-    if (isPlaying) {
-      bgMusic.pause ();
-    audioBtn.textContent = 'musiquita';
-  } else {
-    bgMusic.Play();
-  audioBtn.textContent = 'pausar musiquita';
-}
-   isPlaying = !isPlaying:
-});
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      
-      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
-      
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      osc.start();
-      osc.stop(audioCtx.currentTime + 1.2);
-    }
-
+    // Control manual de reproducción / pausa con el botón
     audioBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      initAudio();
-      playNote(440);
+      if (isPlaying) {
+        bgMusic.pause();
+        audioBtn.textContent = '🎵 Reproducir Música';
+      } else {
+        bgMusic.play();
+        audioBtn.textContent = '⏸️ Pausar Música';
+      }
+      isPlaying = !isPlaying;
     });
 
     function resize() {
@@ -384,15 +362,13 @@
     window.addEventListener('click', (e) => {
       if (e.target.closest('#audioBtn') || flowerCount >= maxFlowers) return;
 
-      initAudio();
-      const noteIndex = flowerCount % notes.length;
+      // Iniciar reproducción en el primer clic
       if (!isPlaying) {
-  bgMusic.play().then(() => {
-    isPlaying = true;
-    audioBtn.textContent = '⏸️ Pausar Música';
-  }).catch(() => {
-    // Manejo en caso de que el navegador bloquee el autostart
-  });
+        bgMusic.play().then(() => {
+          isPlaying = true;
+          audioBtn.textContent = '⏸️ Pausar Música';
+        }).catch(() => {});
+      }
 
       const cx = width / 2;
       const cy = height * 0.52;
