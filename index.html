@@ -3,41 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>21 de Septiembre - Ramo de Flores Amarillas</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Drow Flowers - Flores Amarillas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #050505;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h1 {
+      margin-top: 25px;
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      z-index: 10;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100vw;
+      height: 80vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: pointer;
+    }
+
+    .audio-control {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .audio-control:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Fondo de Atardecer Cálido -->
-  <div id="sunset-background" class="sunset-hidden">
-    <div class="sun-glow"></div>
+  <h1>Drow Flowers</h1>
+
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
   </div>
 
-  <!-- Saco de Semillas Inicial -->
-  <div id="sack-container">
-    <div id="sack-icon">🛍️</div>
-    <p id="sack-instruction">Toca el saco para comenzar a armar tu ramo</p>
-  </div>
+  <button class="audio-control" id="audioBtn">
+    🎵 Raindance - Dave ft. Tems
+  </button>
 
-  <!-- UI: Contador de Flores -->
-  <div id="counter-ui" class="ui-hidden">
-    <p>Agregando flores al ramo: <span id="flower-count">0</span> / 15</p>
-  </div>
+  <!-- Audio de fondo -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://audio.com/rabs-sa/audio/dave-ft-tems-raindance" type="audio/mpeg">
+  </audio>
 
-  <!-- Tarjeta con Poema Final -->
-  <div id="poem-card" class="poem-hidden">
-    <h2>21 de Septiembre 🌻</h2>
-    <p class="verse">Sembré en silencio la primera semilla,<br>con la ilusión viva de volverte a ver,<br>y de la tierra brotó una maravilla:<br>un mar dorado al amanecer.</p>
-    <p class="verse">Girasoles que buscan siempre tu luz,<br>flores amarillas bailando al viento,<br>cubren el campo de norte a cruz<br>para abrazarte en este momento.</p>
-    <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí. ✨</p>
-  </div>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const audio = document.getElementById('bgMusic');
+    const audioBtn = document.getElementById('audioBtn');
 
-  <!-- Lienzo interactivo para el Ramo y Girasoles -->
-  <canvas id="bouquetCanvas"></canvas>
+    let width, height;
+    let flowers = [];
 
-  <script src="script.js"></script>
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight * 0.8;
+      drawScene();
+    }
+
+    window.addEventListener('resize', resize);
+
+    // Reproducción de música
+    let isPlaying = false;
+    function toggleAudio() {
+      if (isPlaying) {
+        audio.pause();
+        audioBtn.style.opacity = '0.6';
+      } else {
+        audio.play().catch(() => {});
+        audioBtn.style.opacity = '1';
+      }
+      isPlaying = !isPlaying;
+    }
+
+    audioBtn.addEventListener('click', toggleAudio);
+    window.addEventListener('click', () => {
+      if (!isPlaying) {
+        audio.play().then(() => { isPlaying = true; audioBtn.style.opacity = '1'; }).catch(() => {});
+      }
+    }, { once: true });
+
+    class Flower {
+      constructor(x, y) {
+        this.x = x;
+        this.startY = height;
+        this.targetY = y;
+        this.currentY = height;
+        this.type = Math.floor(Math.random() * 3); // 0: Tulipán, 1: Flor 5 pétalos, 2: Flor Silvestre
+        this.progress = 0;
+        this.growthSpeed = 0.02 + Math.random() * 0.015;
+        this.curve = (Math.random() - 0.5) * 60;
+        this.size = 18 + Math.random() * 14;
+        
+        // Tonos de amarillo y dorado
+        const yellows = ['#FFE600', '#FFD700', '#FFC107', '#FFEA00', '#FFB300'];
+        this.color = yellows[Math.floor(Math.random() * yellows.length)];
+      }
+
+      update() {
+        if (this.progress < 1) {
+          this.progress += this.growthSpeed;
+          if (this.progress > 1) this.progress = 1;
+        }
+      }
+
+      draw() {
+        const currentHeight = this.startY - (this.startY - this.targetY) * this.progress;
+        
+        // Dibujar Tallo Curvo Verde
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.startY);
+        const controlX = this.x + Math.sin(this.progress * Math.PI) * this.curve;
+        const controlY = this.startY - (this.startY - this.targetY) * 0.5;
+        ctx.quadraticCurveTo(controlX, controlY, this.x, currentHeight);
+        ctx.strokeStyle = '#4CAF50';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Dibujar Flor cuando el tallo haya crecido
+        if (this.progress > 0.4) {
+          const flowerScale = (this.progress - 0.4) / 0.6;
+          ctx.save();
+          ctx.translate(this.x, currentHeight);
+          ctx.scale(flowerScale, flowerScale);
+
+          if (this.type === 0) {
+            this.drawTulip();
+          } else if (this.type === 1) {
+            this.drawPetalFlower();
+          } else {
+            this.drawWildFlower();
+          }
+
+          ctx.restore();
+        }
+      }
+
+      drawTulip() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size, 0, Math.PI, false);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-this.size, 0);
+        ctx.quadraticCurveTo(-this.size * 0.5, -this.size * 1.5, 0, -this.size * 0.3);
+        ctx.quadraticCurveTo(this.size * 0.5, -this.size * 1.5, this.size, 0);
+        ctx.fill();
+      }
+
+      drawPetalFlower() {
+        ctx.fillStyle = this.color;
+        const petals = 5;
+        for (let i = 0; i < petals; i++) {
+          const angle = (i * 2 * Math.PI) / petals;
+          ctx.save();
+          ctx.rotate(angle);
+          ctx.beginPath();
+          ctx.ellipse(0, -this.size * 0.8, this.size * 0.5, this.size * 0.8, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        // Centro
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF6F00';
+        ctx.fill();
+      }
+
+      drawWildFlower() {
+        ctx.fillStyle = this.color;
+        const petals = 8;
+        for (let i = 0; i < petals; i++) {
+          const angle = (i * 2 * Math.PI) / petals;
+          ctx.save();
+          ctx.rotate(angle);
+          ctx.beginPath();
+          ctx.arc(0, -this.size * 0.7, this.size * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = '#3E2723';
+        ctx.fill();
+      }
+    }
+
+    // Inicializar campo de flores iniciales
+    function initFlowers() {
+      flowers = [];
+      const totalInitial = 22;
+      for (let i = 0; i < totalInitial; i++) {
+        const x = (width / (totalInitial + 1)) * (i + 1) + (Math.random() * 20 - 10);
+        const y = height * 0.25 + Math.random() * (height * 0.45);
+        flowers.push(new Flower(x, y));
+      }
+    }
+
+    // Agregar flores al hacer clic
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      flowers.push(new Flower(x, y));
+    });
+
+    function drawText() {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Click To Add Flowers', width / 2, height / 2);
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, width, height);
+
+      flowers.forEach(flower => {
+        flower.update();
+        flower.draw();
+      });
+
+      if (flowers.length === 0) {
+        drawText();
+      }
+    }
+
+    function animate() {
+      drawScene();
+      requestAnimationFrame(animate);
+    }
+
+    // Inicio
+    resize();
+    initFlowers();
+    animate();
+  </script>
 </body>
 </html>
