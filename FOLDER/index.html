@@ -221,10 +221,8 @@
 
   <div id="sunset-background"></div>
 
-  <!-- Audio elemento configurado con Raindance.mp3 -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="Raindance.mp3" type="audio/mpeg">
-  </audio>
+  <!-- MODIFICACIÓN: Se añade preload="auto" para facilitar la carga previa del archivo -->
+  <audio id="bgMusic" loop src="Raindance.mp3" preload="auto"></audio>
 
   <div id="counter-ui">
     Toca para florecer el ramo de girasoles: <span id="flower-count">0</span> / 32
@@ -239,17 +237,17 @@
 
   <div class="audio-container" id="audioContainer">
     <div class="audio-options" id="audioOptions">
-      <label>📁 Seleccionar canción local:</label>
+      <label>📁 Seleccionar música local:</label>
       <label for="musicFileInput" class="file-upload-btn" id="fileLabel">Elegir archivo .mp3</label>
       <input type="file" id="musicFileInput" accept="audio/*">
 
-      <label style="margin-top: 4px;">🔗 O usar enlace directo MP3:</label>
+      <label style="margin-top: 4px;">🔗 O usa un enlace/URL MP3:</label>
       <div class="url-input-container">
         <input type="text" id="musicUrlInput" class="url-input" placeholder="https://.../cancion.mp3">
         <button class="url-btn" id="loadUrlBtn">Cargar</button>
       </div>
     </div>
-    <button class="audio-control" id="audioBtn">🎵 Reproducir Música</button>
+    <button class="audio-control" id="audioBtn">🎵 Música (Ajustes)</button>
   </div>
 
   <canvas id="canvas"></canvas>
@@ -276,31 +274,31 @@
     const stars = [];
     let isPlaying = false;
 
-    // Función auxiliar para iniciar la música de forma segura
-    function startAudio() {
+    // MODIFICACIÓN DE MÚSICA: Función centralizada para reproducir sin fallos por autoplay
+    function playAudioSafe() {
       if (!isPlaying) {
         bgMusic.play().then(() => {
           isPlaying = true;
-          audioBtn.textContent = 'Pausar Música';
-        }).catch((err) => {
-          console.warn("Autoplay restringido por el navegador o archivo no encontrado:", err);
+          audioBtn.textContent = '⏸ Pausar Música';
+        }).catch(err => {
+          console.warn("Autoplay o archivo bloqueado:", err);
         });
       }
     }
 
-    // Botón de encendido / apagado manual
+    // Control de reproductor de música
     audioBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (isPlaying) {
         bgMusic.pause();
         isPlaying = false;
-        audioBtn.textContent = 'Reproducir Música';
+        audioBtn.textContent = '🎵 Reproducir Música';
       } else {
-        startAudio();
+        playAudioSafe();
       }
     });
 
-    // Cargar archivo MP3 local desde el explorador de archivos
+    // Cargar archivo MP3 desde la computadora/celular directamente
     musicFileInput.addEventListener('change', (e) => {
       e.stopPropagation();
       const file = e.target.files[0];
@@ -309,27 +307,27 @@
         bgMusic.src = fileURL;
         fileLabel.textContent = "✓ " + file.name.substring(0, 18) + "...";
         isPlaying = false;
-        startAudio();
+        playAudioSafe();
       }
     });
 
-    // Cargar MP3 desde URL externa
+    // Cargar audio desde URL
     loadUrlBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       const url = musicUrlInput.value.trim();
       if (url) {
         bgMusic.src = url;
         isPlaying = false;
-        startAudio();
+        playAudioSafe();
       }
     });
 
-    // Evitar interacciones accidentales dentro del panel de controles de audio
+    // Evitar que al hacer clic dentro de las opciones de audio se creen flores
     audioContainer.addEventListener('click', (e) => {
       e.stopPropagation();
     });
 
-    // Fondo estelar animado
+    // Clase para las estrellas / luces brillantes de fondo
     class Star {
       constructor() {
         this.reset();
@@ -565,12 +563,11 @@
       ctx.restore();
     }
 
-    // Interacción al hacer clic en la pantalla
     window.addEventListener('click', (e) => {
       if (e.target.closest('#audioContainer') || flowerCount >= maxFlowers) return;
 
-      // Inicia el audio de manera automática en el primer clic de la pantalla
-      startAudio();
+      // MODIFICACIÓN DE MÚSICA: Inicia la canción automáticamente con el primer clic en la pantalla
+      playAudioSafe();
 
       const cx = width / 2;
       const cy = height * 0.52;
