@@ -217,11 +217,11 @@
         this.targetX = targetX;
         this.targetY = targetY;
         this.startX = width / 2 + (Math.random() - 0.5) * 20;
-        this.startY = height * 0.68;
+        this.startY = height * 0.72;
         this.progress = 0;
         this.growthSpeed = 0.035;
-        this.curveFactor = (targetX - width / 2) * 0.45;
-        this.size = 44 + Math.random() * 10;
+        this.curveFactor = (targetX - width / 2) * 0.35;
+        this.size = 38 + Math.random() * 8;
       }
 
       update() {
@@ -231,7 +231,7 @@
         }
       }
 
-      draw() {
+      drawStem() {
         const currentX = this.startX + (this.targetX - this.startX) * this.progress;
         const currentY = this.startY - (this.startY - this.targetY) * this.progress;
 
@@ -243,6 +243,11 @@
         ctx.strokeStyle = '#2d5a1e';
         ctx.lineWidth = 4;
         ctx.stroke();
+      }
+
+      drawFlower() {
+        const currentX = this.startX + (this.targetX - this.startX) * this.progress;
+        const currentY = this.startY - (this.startY - this.targetY) * this.progress;
 
         if (this.progress > 0.15) {
           const scale = (this.progress - 0.15) / 0.85;
@@ -252,7 +257,7 @@
 
           this.drawEucalyptus();
 
-          const numPetals = 26;
+          const numPetals = 24;
           for (let layer = 0; layer < 2; layer++) {
             ctx.fillStyle = layer === 0 ? '#f59e0b' : '#facc15';
             for (let i = 0; i < numPetals; i++) {
@@ -270,12 +275,12 @@
           }
 
           ctx.beginPath();
-          ctx.arc(0, 0, this.size * 0.40, 0, Math.PI * 2);
+          ctx.arc(0, 0, this.size * 0.38, 0, Math.PI * 2);
           ctx.fillStyle = '#291409';
           ctx.fill();
 
           ctx.beginPath();
-          ctx.arc(0, 0, this.size * 0.33, 0, Math.PI * 2);
+          ctx.arc(0, 0, this.size * 0.30, 0, Math.PI * 2);
           ctx.fillStyle = '#180a04';
           ctx.fill();
 
@@ -289,20 +294,20 @@
           ctx.save();
           ctx.rotate((i * Math.PI * 2) / 3 + 0.4);
           ctx.beginPath();
-          ctx.ellipse(0, -this.size * 1.05, 8, 15, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, -this.size * 0.95, 7, 13, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
       }
     }
 
-    function drawBouquetWrapper() {
+    function drawBackPaper() {
       const cx = width / 2;
       const cy = height * 0.62;
 
       ctx.save();
 
-      // Capa Trasera Plisada
+      // Capa Trasera Plisada del Envoltorio
       ctx.fillStyle = '#ebdcd1';
       ctx.strokeStyle = '#d2c0b2';
       ctx.lineWidth = 2;
@@ -317,8 +322,17 @@
       ctx.fill();
       ctx.stroke();
 
-      // Envoltorio Frontal
-      ctx.fillStyle = 'rgba(255, 250, 245, 0.92)';
+      ctx.restore();
+    }
+
+    function drawFrontWrapper() {
+      const cx = width / 2;
+      const cy = height * 0.62;
+
+      ctx.save();
+
+      // Envoltorio Frontal Translúcido que cubre los tallos y la base
+      ctx.fillStyle = 'rgba(255, 250, 245, 0.96)';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 3;
 
@@ -381,12 +395,13 @@
       playNote(notes[noteIndex]);
 
       const cx = width / 2;
-      const cy = height * 0.38;
-      const rx = Math.min(width * 0.35, 190);
-      const ry = Math.min(height * 0.17, 115);
+      // Posición ajustada para que las flores queden introducidas DENTRO de la copa del ramo
+      const cy = height * 0.52;
+      const rx = Math.min(width * 0.28, 150);
+      const ry = Math.min(height * 0.12, 85);
 
       const angle = (flowerCount / maxFlowers) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
-      const dist = 0.2 + 0.8 * Math.sqrt(Math.random());
+      const dist = 0.15 + 0.85 * Math.sqrt(Math.random());
       const targetX = cx + Math.cos(angle) * (rx * dist);
       const targetY = cy + Math.sin(angle) * (ry * dist);
 
@@ -411,12 +426,17 @@
     function animate() {
       ctx.clearRect(0, 0, width, height);
 
-      drawBouquetWrapper();
+      // 1. Papel Trasero
+      drawBackPaper();
 
-      flowers.forEach(f => {
-        f.update();
-        f.draw();
-      });
+      // 2. Tallos por dentro
+      flowers.forEach(f => f.drawStem());
+
+      // 3. Flores por dentro
+      flowers.forEach(f => f.drawFlower());
+
+      // 4. Envoltorio Frontal y Lazo (se superpone a la base de las flores y tallos para acoplarlos)
+      drawFrontWrapper();
 
       requestAnimationFrame(animate);
     }
