@@ -74,7 +74,7 @@
 
     #poem-card {
       position: absolute;
-      top: 20px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%) scale(0.9);
       width: 90%;
@@ -82,7 +82,7 @@
       background: rgba(15, 10, 25, 0.88);
       border: 1px solid rgba(250, 204, 21, 0.5);
       color: #fef08a;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-radius: 18px;
       backdrop-filter: blur(12px);
       z-index: 35;
@@ -101,15 +101,15 @@
 
     #poem-card h2 {
       font-family: 'Caveat', cursive;
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       color: #facc15;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .verse {
-      font-size: 0.82rem;
-      line-height: 1.4;
-      margin-bottom: 6px;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      margin-bottom: 5px;
       color: #f1f5f9;
     }
 
@@ -221,7 +221,7 @@
         this.progress = 0;
         this.growthSpeed = 0.035;
         this.curveFactor = (targetX - width / 2) * 0.35;
-        this.size = 38 + Math.random() * 8;
+        this.size = 36 + Math.random() * 8;
       }
 
       update() {
@@ -303,7 +303,7 @@
 
     function drawBackPaper() {
       const cx = width / 2;
-      const cy = height * 0.62;
+      const cy = height * 0.65;
 
       ctx.save();
 
@@ -313,11 +313,11 @@
       ctx.lineWidth = 2;
 
       ctx.beginPath();
-      ctx.moveTo(cx - 250, cy - 80);
-      ctx.quadraticCurveTo(cx, cy - 140, cx + 250, cy - 80);
-      ctx.quadraticCurveTo(cx + 120, cy + 120, cx + 45, cy + 240);
-      ctx.lineTo(cx - 45, cy + 240);
-      ctx.quadraticCurveTo(cx - 120, cy + 120, cx - 250, cy - 80);
+      ctx.moveTo(cx - 240, cy - 90);
+      ctx.quadraticCurveTo(cx, cy - 150, cx + 240, cy - 90);
+      ctx.quadraticCurveTo(cx + 120, cy + 110, cx + 45, cy + 220);
+      ctx.lineTo(cx - 45, cy + 220);
+      ctx.quadraticCurveTo(cx - 120, cy + 110, cx - 240, cy - 90);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -327,29 +327,29 @@
 
     function drawFrontWrapper() {
       const cx = width / 2;
-      const cy = height * 0.62;
+      const cy = height * 0.65;
 
       ctx.save();
 
-      // Envoltorio Frontal Translúcido que cubre los tallos y la base
+      // Envoltorio Frontal Translúcido que cubre los tallos y la base de las flores
       ctx.fillStyle = 'rgba(255, 250, 245, 0.96)';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 3;
 
       ctx.beginPath();
-      ctx.moveTo(cx - 230, cy - 50);
-      ctx.quadraticCurveTo(cx - 110, cy + 30, cx, cy + 180);
-      ctx.lineTo(cx - 40, cy + 240);
-      ctx.quadraticCurveTo(cx - 100, cy + 120, cx - 230, cy - 50);
+      ctx.moveTo(cx - 220, cy - 60);
+      ctx.quadraticCurveTo(cx - 110, cy + 20, cx, cy + 160);
+      ctx.lineTo(cx - 40, cy + 220);
+      ctx.quadraticCurveTo(cx - 100, cy + 110, cx - 220, cy - 60);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(cx + 230, cy - 50);
-      ctx.quadraticCurveTo(cx + 110, cy + 30, cx, cy + 180);
-      ctx.lineTo(cx + 40, cy + 240);
-      ctx.quadraticCurveTo(cx + 100, cy + 120, cx + 230, cy - 50);
+      ctx.moveTo(cx + 220, cy - 60);
+      ctx.quadraticCurveTo(cx + 110, cy + 20, cx, cy + 160);
+      ctx.lineTo(cx + 40, cy + 220);
+      ctx.quadraticCurveTo(cx + 100, cy + 110, cx + 220, cy - 60);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -360,28 +360,28 @@
       ctx.lineWidth = 1.5;
 
       ctx.beginPath();
-      ctx.arc(cx, cy + 175, 10, 0, Math.PI * 2);
+      ctx.arc(cx, cy + 160, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.ellipse(cx - 35, cy + 175, 32, 14, -Math.PI / 8, 0, Math.PI * 2);
-      ctx.ellipse(cx + 35, cy + 175, 32, 14, Math.PI / 8, 0, Math.PI * 2);
+      ctx.ellipse(cx - 35, cy + 160, 32, 14, -Math.PI / 8, 0, Math.PI * 2);
+      ctx.ellipse(cx + 35, cy + 160, 32, 14, Math.PI / 8, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(cx - 5, cy + 180);
-      ctx.quadraticCurveTo(cx - 25, cy + 230, cx - 45, cy + 270);
-      ctx.lineTo(cx - 30, cy + 275);
-      ctx.quadraticCurveTo(cx - 10, cy + 230, cx, cy + 185);
+      ctx.moveTo(cx - 5, cy + 165);
+      ctx.quadraticCurveTo(cx - 25, cy + 215, cx - 45, cy + 255);
+      ctx.lineTo(cx - 30, cy + 260);
+      ctx.quadraticCurveTo(cx - 10, cy + 215, cx, cy + 170);
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(cx + 5, cy + 180);
-      ctx.quadraticCurveTo(cx + 25, cy + 230, cx + 45, cy + 270);
-      ctx.lineTo(cx + 30, cy + 275);
-      ctx.quadraticCurveTo(cx + 10, cy + 230, cx, cy + 185);
+      ctx.moveTo(cx + 5, cy + 165);
+      ctx.quadraticCurveTo(cx + 25, cy + 215, cx + 45, cy + 255);
+      ctx.lineTo(cx + 30, cy + 260);
+      ctx.quadraticCurveTo(cx + 10, cy + 215, cx, cy + 170);
       ctx.fill();
 
       ctx.restore();
@@ -395,10 +395,10 @@
       playNote(notes[noteIndex]);
 
       const cx = width / 2;
-      // Posición ajustada para que las flores queden introducidas DENTRO de la copa del ramo
-      const cy = height * 0.52;
-      const rx = Math.min(width * 0.28, 150);
-      const ry = Math.min(height * 0.12, 85);
+      // Posición bajada para asegurar que las flores se inserten completamente dentro del ramo
+      const cy = height * 0.58;
+      const rx = Math.min(width * 0.26, 140);
+      const ry = Math.min(height * 0.11, 75);
 
       const angle = (flowerCount / maxFlowers) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
       const dist = 0.15 + 0.85 * Math.sqrt(Math.random());
@@ -429,13 +429,13 @@
       // 1. Papel Trasero
       drawBackPaper();
 
-      // 2. Tallos por dentro
+      // 2. Tallos
       flowers.forEach(f => f.drawStem());
 
-      // 3. Flores por dentro
+      // 3. Flores en la copa
       flowers.forEach(f => f.drawFlower());
 
-      // 4. Envoltorio Frontal y Lazo (se superpone a la base de las flores y tallos para acoplarlos)
+      // 4. Envoltorio Frontal (Cubre la base de las flores)
       drawFrontWrapper();
 
       requestAnimationFrame(animate);
