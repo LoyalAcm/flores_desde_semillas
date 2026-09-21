@@ -3,115 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drow Flowers - Flores Amarillas</title>
+  <title>Ramo de Flores Amarillas - 21 de Septiembre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    body {
-      background-color: #050505;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    h1 {
-      margin-top: 25px;
-      font-size: 2.2rem;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      color: #ffffff;
-      z-index: 10;
-      text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    }
-
-    .canvas-container {
-      position: relative;
-      width: 100vw;
-      height: 80vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    canvas {
+    body, html {
       width: 100%;
       height: 100%;
-      display: block;
+      overflow: hidden;
+      background-color: #08080a;
+      color: #ffffff;
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+    }
+
+    /* Fondo de Atardecer */
+    #sunset-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 30%, #fb923c 0%, #ea580c 40%, #7c3aed 80%, #1e1035 100%);
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 2.5s ease-in-out;
+    }
+
+    .sunset-visible {
+      opacity: 1 !important;
+    }
+
+    /* Canvas Interactivo */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
       cursor: pointer;
     }
 
+    /* UI Contador */
+    #counter-ui {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      color: #fef08a;
+      padding: 8px 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      z-index: 25;
+      font-size: 0.9rem;
+      transition: opacity 0.5s;
+      text-align: center;
+    }
+
+    .ui-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Tarjeta del Poema (Optimizada en la parte superior) */
+    #poem-card {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      width: 90%;
+      max-width: 420px;
+      background: rgba(15, 10, 25, 0.75);
+      border: 1px solid rgba(250, 204, 21, 0.4);
+      color: #fef08a;
+      padding: 16px 18px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      z-index: 35;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      opacity: 0;
+      transition: all 1.5s ease;
+      pointer-events: none;
+    }
+
+    .poem-visible {
+      opacity: 1 !important;
+      transform: translateX(-50%) scale(1) !important;
+      pointer-events: auto !important;
+    }
+
+    #poem-card h2 {
+      font-family: 'Caveat', cursive;
+      font-size: 1.8rem;
+      color: #facc15;
+      margin-bottom: 6px;
+    }
+
+    .verse {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      color: #f1f5f9;
+    }
+
+    .accent {
+      color: #fef08a;
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+
+    /* Botón de Audio */
     .audio-control {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
       padding: 8px 16px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
-      z-index: 100;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .audio-control:hover {
-      background: rgba(255, 255, 255, 0.2);
+      z-index: 40;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s;
     }
   </style>
 </head>
 <body>
 
-  <h1>Drow Flowers</h1>
+  <!-- Fondo Atardecer -->
+  <div id="sunset-background" class="sunset-hidden"></div>
 
-  <div class="canvas-container">
-    <canvas id="canvas"></canvas>
+  <!-- UI Contador -->
+  <div id="counter-ui">
+    Toca la pantalla para armar el ramo: <span id="flower-count">0</span> / 18
   </div>
 
-  <button class="audio-control" id="audioBtn">
-    🎵 Raindance - Dave ft. Tems
-  </button>
+  <!-- Tarjeta con Poema -->
+  <div id="poem-card" class="poem-hidden">
+    <h2>21 de Septiembre</h2>
+    <p class="verse">Sembré en silencio la primera semilla,<br>con la ilusión viva de volverte a ver,<br>y de la tierra brotó una maravilla:<br>un mar dorado al amanecer.</p>
+    <p class="verse">Girasoles que buscan siempre tu luz,<br>flores amarillas bailando al viento,<br>cubren el campo de norte a cruz<br>para abrazarte en este momento.</p>
+    <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí.</p>
+  </div>
 
-  <!-- Audio de fondo -->
+  <!-- Botón de Música -->
+  <button class="audio-control" id="audioBtn">🎵 Raindance - Dave ft. Tems</button>
+
+  <!-- Elemento Audio -->
   <audio id="bgMusic" loop preload="auto">
     <source src="https://audio.com/rabs-sa/audio/dave-ft-tems-raindance" type="audio/mpeg">
   </audio>
 
+  <!-- Lienzo -->
+  <canvas id="canvas"></canvas>
+
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const counterUI = document.getElementById('counter-ui');
+    const countSpan = document.getElementById('flower-count');
+    const sunsetBG = document.getElementById('sunset-background');
+    const poemCard = document.getElementById('poem-card');
     const audio = document.getElementById('bgMusic');
     const audioBtn = document.getElementById('audioBtn');
 
     let width, height;
-    let flowers = [];
+    let flowerCount = 0;
+    const maxFlowers = 18;
+    const flowers = [];
+    let isSunsetActive = false;
+    let bouquetCenter = { x: 0, y: 0, radiusX: 0, radiusY: 0 };
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight * 0.8;
-      drawScene();
-    }
-
-    window.addEventListener('resize', resize);
-
-    // Reproducción de música
+    // Control de Audio
     let isPlaying = false;
+    audio.volume = 0.25; // Inicia con sonido bajo
+
     function toggleAudio() {
       if (isPlaying) {
         audio.pause();
-        audioBtn.style.opacity = '0.6';
+        audioBtn.style.opacity = '0.5';
       } else {
         audio.play().catch(() => {});
         audioBtn.style.opacity = '1';
@@ -120,25 +202,42 @@
     }
 
     audioBtn.addEventListener('click', toggleAudio);
+    
+    // Iniciar audio suave al primer toque
     window.addEventListener('click', () => {
       if (!isPlaying) {
-        audio.play().then(() => { isPlaying = true; audioBtn.style.opacity = '1'; }).catch(() => {});
+        audio.play().then(() => { 
+          isPlaying = true; 
+          audioBtn.style.opacity = '1'; 
+        }).catch(() => {});
       }
     }, { once: true });
 
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+
+      bouquetCenter = {
+        x: width / 2,
+        y: height * 0.52,
+        radiusX: Math.min(width * 0.32, 140),
+        radiusY: Math.min(height * 0.14, 90)
+      };
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
     class Flower {
-      constructor(x, y) {
-        this.x = x;
-        this.startY = height;
-        this.targetY = y;
-        this.currentY = height;
-        this.type = Math.floor(Math.random() * 3); // 0: Tulipán, 1: Flor 5 pétalos, 2: Flor Silvestre
+      constructor(targetX, targetY) {
+        this.x = targetX;
+        this.startY = bouquetCenter.y + 160;
+        this.targetY = targetY;
         this.progress = 0;
-        this.growthSpeed = 0.02 + Math.random() * 0.015;
-        this.curve = (Math.random() - 0.5) * 60;
-        this.size = 18 + Math.random() * 14;
-        
-        // Tonos de amarillo y dorado
+        this.growthSpeed = 0.025;
+        this.curve = (Math.random() - 0.5) * 40;
+        this.type = Math.floor(Math.random() * 3); // 0: Tulipán, 1: 5 Pétalos, 2: Silvestre
+        this.size = 16 + Math.random() * 12;
+
         const yellows = ['#FFE600', '#FFD700', '#FFC107', '#FFEA00', '#FFB300'];
         this.color = yellows[Math.floor(Math.random() * yellows.length)];
       }
@@ -151,32 +250,27 @@
       }
 
       draw() {
-        const currentHeight = this.startY - (this.startY - this.targetY) * this.progress;
+        const currentY = this.startY - (this.startY - this.targetY) * this.progress;
         
-        // Dibujar Tallo Curvo Verde
+        // Tallo Curvo Verde
         ctx.beginPath();
         ctx.moveTo(this.x, this.startY);
         const controlX = this.x + Math.sin(this.progress * Math.PI) * this.curve;
         const controlY = this.startY - (this.startY - this.targetY) * 0.5;
-        ctx.quadraticCurveTo(controlX, controlY, this.x, currentHeight);
-        ctx.strokeStyle = '#4CAF50';
+        ctx.quadraticCurveTo(controlX, controlY, this.x, currentY);
+        ctx.strokeStyle = '#3a7d44';
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Dibujar Flor cuando el tallo haya crecido
-        if (this.progress > 0.4) {
-          const flowerScale = (this.progress - 0.4) / 0.6;
+        if (this.progress > 0.3) {
+          const scale = (this.progress - 0.3) / 0.7;
           ctx.save();
-          ctx.translate(this.x, currentHeight);
-          ctx.scale(flowerScale, flowerScale);
+          ctx.translate(this.x, currentY);
+          ctx.scale(scale, scale);
 
-          if (this.type === 0) {
-            this.drawTulip();
-          } else if (this.type === 1) {
-            this.drawPetalFlower();
-          } else {
-            this.drawWildFlower();
-          }
+          if (this.type === 0) this.drawTulip();
+          else if (this.type === 1) this.drawPetalFlower();
+          else this.drawWildFlower();
 
           ctx.restore();
         }
@@ -190,96 +284,133 @@
 
         ctx.beginPath();
         ctx.moveTo(-this.size, 0);
-        ctx.quadraticCurveTo(-this.size * 0.5, -this.size * 1.5, 0, -this.size * 0.3);
-        ctx.quadraticCurveTo(this.size * 0.5, -this.size * 1.5, this.size, 0);
+        ctx.quadraticCurveTo(-this.size * 0.5, -this.size * 1.4, 0, -this.size * 0.3);
+        ctx.quadraticCurveTo(this.size * 0.5, -this.size * 1.4, this.size, 0);
         ctx.fill();
       }
 
       drawPetalFlower() {
         ctx.fillStyle = this.color;
-        const petals = 5;
-        for (let i = 0; i < petals; i++) {
-          const angle = (i * 2 * Math.PI) / petals;
+        for (let i = 0; i < 5; i++) {
           ctx.save();
-          ctx.rotate(angle);
+          ctx.rotate((i * 2 * Math.PI) / 5);
           ctx.beginPath();
-          ctx.ellipse(0, -this.size * 0.8, this.size * 0.5, this.size * 0.8, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
-        // Centro
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size * 0.35, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF6F00';
-        ctx.fill();
-      }
-
-      drawWildFlower() {
-        ctx.fillStyle = this.color;
-        const petals = 8;
-        for (let i = 0; i < petals; i++) {
-          const angle = (i * 2 * Math.PI) / petals;
-          ctx.save();
-          ctx.rotate(angle);
-          ctx.beginPath();
-          ctx.arc(0, -this.size * 0.7, this.size * 0.3, 0, Math.PI * 2);
+          ctx.ellipse(0, -this.size * 0.75, this.size * 0.45, this.size * 0.75, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
         ctx.beginPath();
         ctx.arc(0, 0, this.size * 0.3, 0, Math.PI * 2);
-        ctx.fillStyle = '#3E2723';
+        ctx.fillStyle = '#f97316';
+        ctx.fill();
+      }
+
+      drawWildFlower() {
+        ctx.fillStyle = this.color;
+        for (let i = 0; i < 8; i++) {
+          ctx.save();
+          ctx.rotate((i * 2 * Math.PI) / 8);
+          ctx.beginPath();
+          ctx.arc(0, -this.size * 0.65, this.size * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.28, 0, Math.PI * 2);
+        ctx.fillStyle = '#451a03';
         ctx.fill();
       }
     }
 
-    // Inicializar campo de flores iniciales
-    function initFlowers() {
-      flowers = [];
-      const totalInitial = 22;
-      for (let i = 0; i < totalInitial; i++) {
-        const x = (width / (totalInitial + 1)) * (i + 1) + (Math.random() * 20 - 10);
-        const y = height * 0.25 + Math.random() * (height * 0.45);
-        flowers.push(new Flower(x, y));
-      }
+    // Dibujar envoltura del ramo (Papel elegante)
+    function drawBouquetWrapper() {
+      const cx = bouquetCenter.x;
+      const cy = bouquetCenter.y + 40;
+
+      ctx.save();
+      // Papel Rosado Posterior
+      ctx.fillStyle = '#fbcfe8';
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 1.5;
+
+      ctx.beginPath();
+      ctx.moveTo(cx - 150, cy - 60);
+      ctx.lineTo(cx - 45, cy + 180);
+      ctx.lineTo(cx + 45, cy + 180);
+      ctx.lineTo(cx + 150, cy - 60);
+      ctx.lineTo(cx, cy + 40);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cinta / Moño Plateado
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 150, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(cx - 20, cy + 150, 16, 8, -Math.PI / 6, 0, Math.PI * 2);
+      ctx.ellipse(cx + 20, cy + 150, 16, 8, Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
 
-    // Agregar flores al hacer clic
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      flowers.push(new Flower(x, y));
+    // Clics para armar el ramo
+    window.addEventListener('click', (e) => {
+      if (e.target.closest('#audioBtn') || flowerCount >= maxFlowers) return;
+
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random());
+      const targetX = bouquetCenter.x + Math.cos(angle) * (bouquetCenter.radiusX * dist);
+      const targetY = bouquetCenter.y + Math.sin(angle) * (bouquetCenter.radiusY * dist);
+
+      flowers.push(new Flower(targetX, targetY));
+      flowerCount++;
+      countSpan.textContent = flowerCount;
+
+      flowers.sort((a, b) => a.targetY - b.targetY);
+
+      // Cuando el ramo está completo
+      if (flowerCount >= maxFlowers) {
+        counterUI.classList.add('ui-hidden');
+        
+        // Subir volumen gradualmente al 100%
+        let volInterval = setInterval(() => {
+          if (audio.volume < 0.95) {
+            audio.volume += 0.05;
+          } else {
+            audio.volume = 1.0;
+            clearInterval(volInterval);
+          }
+        }, 150);
+
+        setTimeout(() => {
+          sunsetBG.classList.add('sunset-visible');
+          isSunsetActive = true;
+          setTimeout(() => {
+            poemCard.classList.add('poem-visible');
+          }, 1000);
+        }, 400);
+      }
     });
 
-    function drawText() {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.font = '16px -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Click To Add Flowers', width / 2, height / 2);
-    }
-
-    function drawScene() {
+    function animate() {
       ctx.clearRect(0, 0, width, height);
 
-      flowers.forEach(flower => {
-        flower.update();
-        flower.draw();
+      // Dibujar fondo del ramo
+      drawBouquetWrapper();
+
+      // Dibujar flores
+      flowers.forEach(f => {
+        f.update();
+        f.draw();
       });
 
-      if (flowers.length === 0) {
-        drawText();
-      }
-    }
-
-    function animate() {
-      drawScene();
       requestAnimationFrame(animate);
     }
 
-    // Inicio
-    resize();
-    initFlowers();
     animate();
   </script>
 </body>
