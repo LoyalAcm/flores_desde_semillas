@@ -141,7 +141,7 @@
   <div id="sunset-background"></div>
 
   <!-- 👇 AQUÍ PONES TU CANCIÓN: Reemplaza tu_cancion.mp3 por el nombre de tu archivo -->
-  <audio id="bgMusic" loop src=""C:\Users\Asus Tuf Gaming F16\Downloads\Dave - Raindance (ft. Tems).mp3.mpeg""></audio>
+  <audio id="bgMusic" loop src=""Dave - Raindance (ft. Tems).mp3""></audio>
 
   <div id="counter-ui">
     Toca para florecer el ramo de girasoles: <span id="flower-count">0</span> / 32
@@ -179,10 +179,10 @@
       e.stopPropagation();
       if (isPlaying) {
         bgMusic.pause();
-        audioBtn.textContent = '🎵 Reproducir Música';
+        audioBtn.textContent = 'Musiquita';
       } else {
         bgMusic.play();
-        audioBtn.textContent = '⏸️ Pausar Música';
+        audioBtn.textContent = 'Pausar Musiquita';
       }
       isPlaying = !isPlaying;
     });
