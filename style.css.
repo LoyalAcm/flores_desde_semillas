@@ -1,0 +1,175 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  user-select: none;
+}
+
+/* Adaptación de tema claro / oscuro inicial */
+body {
+  background-color: #f3eae1;
+  color: #2c3e50;
+  transition: background-color 1.5s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1523;
+    color: #f8fafc;
+  }
+}
+
+/* Saco de Semillas */
+#sack-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  cursor: pointer;
+  z-index: 30;
+  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+#sack-icon {
+  font-size: 85px;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.25));
+  animation: pulse 2s infinite ease-in-out;
+}
+
+#sack-instruction {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.sack-minimized {
+  transform: translate(-50%, -50%) scale(0) !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Contador UI */
+#counter-ui {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  z-index: 25;
+  font-size: 0.9rem;
+  transition: opacity 0.5s;
+}
+
+.ui-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Canvas del Ramo */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+/* --- ATARDECER CÁLIDO --- */
+#sunset-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 30%, #fb923c 0%, #ea580c 40%, #7c3aed 80%, #2e1065 100%);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 2.5s ease-in-out;
+}
+
+.sunset-visible {
+  opacity: 1 !important;
+}
+
+.sun-glow {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.8) 0%, rgba(250, 204, 21, 0.3) 50%, transparent 80%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* --- TARJETA POEMA --- */
+#poem-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 88%;
+  max-width: 380px;
+  background: rgba(24, 18, 38, 0.82);
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  color: #fef08a;
+  padding: 22px 18px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  z-index: 35;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: all 1.5s ease;
+  pointer-events: none;
+}
+
+.poem-visible {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+#poem-card h2 {
+  font-family: 'Caveat', cursive;
+  font-size: 2.3rem;
+  color: #facc15;
+  margin-bottom: 10px;
+}
+
+.verse {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  color: #f1f5f9;
+}
+
+.accent {
+  color: #fef08a;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}

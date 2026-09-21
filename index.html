@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>21 de Septiembre - Ramo de Flores Amarillas</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Fondo de Atardecer Cálido -->
+  <div id="sunset-background" class="sunset-hidden">
+    <div class="sun-glow"></div>
+  </div>
+
+  <!-- Saco de Semillas Inicial -->
+  <div id="sack-container">
+    <div id="sack-icon">🛍️</div>
+    <p id="sack-instruction">Toca el saco para comenzar a armar tu ramo</p>
+  </div>
+
+  <!-- UI: Contador de Flores -->
+  <div id="counter-ui" class="ui-hidden">
+    <p>Agregando flores al ramo: <span id="flower-count">0</span> / 15</p>
+  </div>
+
+  <!-- Tarjeta con Poema Final -->
+  <div id="poem-card" class="poem-hidden">
+    <h2>21 de Septiembre 🌻</h2>
+    <p class="verse">Sembré en silencio la primera semilla,<br>con la ilusión viva de volverte a ver,<br>y de la tierra brotó una maravilla:<br>un mar dorado al amanecer.</p>
+    <p class="verse">Girasoles que buscan siempre tu luz,<br>flores amarillas bailando al viento,<br>cubren el campo de norte a cruz<br>para abrazarte en este momento.</p>
+    <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí. ✨</p>
+  </div>
+
+  <!-- Lienzo interactivo para el Ramo y Girasoles -->
+  <canvas id="bouquetCanvas"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
