@@ -216,12 +216,12 @@
       constructor(targetX, targetY) {
         this.targetX = targetX;
         this.targetY = targetY;
-        this.startX = width / 2 + (Math.random() - 0.5) * 20;
-        this.startY = height * 0.72;
+        this.startX = width / 2 + (Math.random() - 0.5) * 15;
+        this.startY = height * 0.76;
         this.progress = 0;
         this.growthSpeed = 0.035;
-        this.curveFactor = (targetX - width / 2) * 0.35;
-        this.size = 36 + Math.random() * 8;
+        this.curveFactor = (targetX - width / 2) * 0.3;
+        this.size = 42 + Math.random() * 8;
       }
 
       update() {
@@ -231,10 +231,11 @@
         }
       }
 
-      drawStem() {
+      draw() {
         const currentX = this.startX + (this.targetX - this.startX) * this.progress;
         const currentY = this.startY - (this.startY - this.targetY) * this.progress;
 
+        // Dibujar tallo
         ctx.beginPath();
         ctx.moveTo(this.startX, this.startY);
         const controlX = (this.startX + this.targetX) / 2 + Math.sin(this.progress * Math.PI) * (this.curveFactor * 0.5);
@@ -243,12 +244,8 @@
         ctx.strokeStyle = '#2d5a1e';
         ctx.lineWidth = 4;
         ctx.stroke();
-      }
 
-      drawFlower() {
-        const currentX = this.startX + (this.targetX - this.startX) * this.progress;
-        const currentY = this.startY - (this.startY - this.targetY) * this.progress;
-
+        // Dibujar flor
         if (this.progress > 0.15) {
           const scale = (this.progress - 0.15) / 0.85;
           ctx.save();
@@ -257,7 +254,7 @@
 
           this.drawEucalyptus();
 
-          const numPetals = 24;
+          const numPetals = 26;
           for (let layer = 0; layer < 2; layer++) {
             ctx.fillStyle = layer === 0 ? '#f59e0b' : '#facc15';
             for (let i = 0; i < numPetals; i++) {
@@ -301,13 +298,13 @@
       }
     }
 
-    function drawBackPaper() {
+    function drawBouquet() {
       const cx = width / 2;
-      const cy = height * 0.65;
+      const cy = height * 0.62;
 
       ctx.save();
 
-      // Capa Trasera Plisada del Envoltorio
+      // 1. Papel Trasero (Fondo del ramo)
       ctx.fillStyle = '#ebdcd1';
       ctx.strokeStyle = '#d2c0b2';
       ctx.lineWidth = 2;
@@ -322,54 +319,53 @@
       ctx.fill();
       ctx.stroke();
 
-      ctx.restore();
-    }
+      // 2. Dibujar todas las flores (tallos y cabezas) DENTRO del papel trasero
+      flowers.forEach(f => f.draw());
 
-    function drawFrontWrapper() {
-      const cx = width / 2;
-      const cy = height * 0.65;
-
-      ctx.save();
-
-      // Envoltorio Frontal Translúcido que cubre los tallos y la base de las flores
+      // 3. Envoltorio Frontal (Solapas dobladas hacia adelante)
       ctx.fillStyle = 'rgba(255, 250, 245, 0.96)';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 3;
 
+      // Solapa Izquierda
       ctx.beginPath();
-      ctx.moveTo(cx - 220, cy - 60);
-      ctx.quadraticCurveTo(cx - 110, cy + 20, cx, cy + 160);
+      ctx.moveTo(cx - 240, cy - 90);
+      ctx.quadraticCurveTo(cx - 80, cy + 30, cx, cy + 160);
       ctx.lineTo(cx - 40, cy + 220);
-      ctx.quadraticCurveTo(cx - 100, cy + 110, cx - 220, cy - 60);
+      ctx.quadraticCurveTo(cx - 110, cy + 110, cx - 240, cy - 90);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
+      // Solapa Derecha
       ctx.beginPath();
-      ctx.moveTo(cx + 220, cy - 60);
-      ctx.quadraticCurveTo(cx + 110, cy + 20, cx, cy + 160);
+      ctx.moveTo(cx + 240, cy - 90);
+      ctx.quadraticCurveTo(cx + 80, cy + 30, cx, cy + 160);
       ctx.lineTo(cx + 40, cy + 220);
-      ctx.quadraticCurveTo(cx + 100, cy + 110, cx + 220, cy - 60);
+      ctx.quadraticCurveTo(cx + 110, cy + 110, cx + 240, cy - 90);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Lazo Satinado
+      // 4. Lazo y Cintas
       ctx.fillStyle = '#ffffff';
       ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1.5;
 
+      // Nudo central
       ctx.beginPath();
       ctx.arc(cx, cy + 160, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
+      // Orejas del lazo
       ctx.beginPath();
       ctx.ellipse(cx - 35, cy + 160, 32, 14, -Math.PI / 8, 0, Math.PI * 2);
       ctx.ellipse(cx + 35, cy + 160, 32, 14, Math.PI / 8, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
+      // Tiras colgantes
       ctx.beginPath();
       ctx.moveTo(cx - 5, cy + 165);
       ctx.quadraticCurveTo(cx - 25, cy + 215, cx - 45, cy + 255);
@@ -395,10 +391,10 @@
       playNote(notes[noteIndex]);
 
       const cx = width / 2;
-      // Posición bajada para asegurar que las flores se inserten completamente dentro del ramo
-      const cy = height * 0.58;
-      const rx = Math.min(width * 0.26, 140);
-      const ry = Math.min(height * 0.11, 75);
+      // Área donde se posibilitan los girasoles (copa superior del ramo)
+      const cy = height * 0.45;
+      const rx = Math.min(width * 0.32, 180);
+      const ry = Math.min(height * 0.14, 95);
 
       const angle = (flowerCount / maxFlowers) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
       const dist = 0.15 + 0.85 * Math.sqrt(Math.random());
@@ -426,17 +422,8 @@
     function animate() {
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Papel Trasero
-      drawBackPaper();
-
-      // 2. Tallos
-      flowers.forEach(f => f.drawStem());
-
-      // 3. Flores en la copa
-      flowers.forEach(f => f.drawFlower());
-
-      // 4. Envoltorio Frontal (Cubre la base de las flores)
-      drawFrontWrapper();
+      // Dibujar ramo completo en el orden correcto de capas
+      drawBouquet();
 
       requestAnimationFrame(animate);
     }
