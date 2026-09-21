@@ -17,13 +17,12 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #0d0a14;
+      background-color: #0b0813;
       color: #ffffff;
       font-family: 'Poppins', sans-serif;
       user-select: none;
     }
 
-    /* Fondo de Atardecer */
     #sunset-background {
       position: absolute;
       top: 0;
@@ -40,7 +39,6 @@
       opacity: 1 !important;
     }
 
-    /* Canvas Interactivo */
     canvas {
       position: absolute;
       top: 0;
@@ -51,14 +49,13 @@
       cursor: pointer;
     }
 
-    /* UI Contador */
     #counter-ui {
       position: absolute;
       top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(250, 204, 21, 0.5);
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(250, 204, 21, 0.6);
       color: #fef08a;
       padding: 8px 22px;
       border-radius: 20px;
@@ -75,18 +72,17 @@
       pointer-events: none;
     }
 
-    /* Tarjeta del Poema */
     #poem-card {
       position: absolute;
-      top: 25px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%) scale(0.9);
       width: 90%;
       max-width: 420px;
-      background: rgba(15, 10, 25, 0.85);
+      background: rgba(15, 10, 25, 0.88);
       border: 1px solid rgba(250, 204, 21, 0.5);
       color: #fef08a;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-radius: 18px;
       backdrop-filter: blur(12px);
       z-index: 35;
@@ -105,15 +101,15 @@
 
     #poem-card h2 {
       font-family: 'Caveat', cursive;
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       color: #facc15;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .verse {
-      font-size: 0.82rem;
-      line-height: 1.4;
-      margin-bottom: 6px;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      margin-bottom: 5px;
       color: #f1f5f9;
     }
 
@@ -123,13 +119,12 @@
       margin-bottom: 0;
     }
 
-    /* Botón de Audio */
     .audio-control {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(250, 204, 21, 0.4);
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(250, 204, 21, 0.5);
       color: #fff;
       padding: 8px 16px;
       border-radius: 20px;
@@ -143,15 +138,12 @@
 </head>
 <body>
 
-  <!-- Fondo Atardecer -->
   <div id="sunset-background"></div>
 
-  <!-- UI Contador -->
   <div id="counter-ui">
-    Toca para armar el ramo de girasoles: <span id="flower-count">0</span> / 20
+    Toca para florecer el ramo de girasoles: <span id="flower-count">0</span> / 32
   </div>
 
-  <!-- Tarjeta con Poema -->
   <div id="poem-card">
     <h2>21 de Septiembre</h2>
     <p class="verse">Sembré en silencio la primera semilla,<br>con la ilusión viva de volverte a ver,<br>y de la tierra brotó una maravilla:<br>un mar dorado al amanecer.</p>
@@ -159,15 +151,8 @@
     <p class="verse accent">Que el cielo se tiña de un cálido atardecer,<br>mientras este ramo florece para ti,<br>porque en cada pétalo que ves nacer,<br>resplandece la dicha de tenerte aquí.</p>
   </div>
 
-  <!-- Botón de Música -->
-  <button class="audio-control" id="audioBtn">🎵 Raindance - Dave ft. Tems</button>
+  <button class="audio-control" id="audioBtn">🎵 Audio Armónico</button>
 
-  <!-- Audio directo de la canción -->
-  <audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- Lienzo Canvas -->
   <canvas id="canvas"></canvas>
 
   <script>
@@ -177,32 +162,46 @@
     const countSpan = document.getElementById('flower-count');
     const sunsetBG = document.getElementById('sunset-background');
     const poemCard = document.getElementById('poem-card');
-    const audio = document.getElementById('bgMusic');
     const audioBtn = document.getElementById('audioBtn');
 
     let width, height;
     let flowerCount = 0;
-    const maxFlowers = 20;
+    const maxFlowers = 32;
     const flowers = [];
-    let isPlaying = false;
 
-    // Control de audio
-    audio.volume = 0.15;
+    let audioCtx = null;
+    const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
 
-    function toggleAudio() {
-      if (isPlaying) {
-        audio.pause();
-        audioBtn.style.opacity = '0.5';
-      } else {
-        audio.play().catch(() => {});
-        audioBtn.style.opacity = '1';
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      isPlaying = !isPlaying;
+    }
+
+    function playNote(freq) {
+      if (!audioCtx) return;
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 1.2);
     }
 
     audioBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleAudio();
+      initAudio();
+      playNote(440);
     });
 
     function resize() {
@@ -212,19 +211,16 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Clase Girasol
     class Sunflower {
       constructor(targetX, targetY) {
         this.targetX = targetX;
         this.targetY = targetY;
-        
-        this.startX = width / 2 + (Math.random() - 0.5) * 40;
+        this.startX = width / 2 + (Math.random() - 0.5) * 15;
         this.startY = height * 0.72;
-
         this.progress = 0;
-        this.growthSpeed = 0.025;
-        this.curveFactor = (Math.random() - 0.5) * 100;
-        this.size = 38 + Math.random() * 12; // Girasoles grandes como en la foto
+        this.growthSpeed = 0.04;
+        this.curveFactor = (targetX - width / 2) * 0.3;
+        this.size = 38 + Math.random() * 8;
       }
 
       update() {
@@ -235,176 +231,165 @@
       }
 
       draw() {
+        this.update();
         const currentX = this.startX + (this.targetX - this.startX) * this.progress;
         const currentY = this.startY - (this.startY - this.targetY) * this.progress;
 
-        // Tallo Semicurvo
+        // Tallo
         ctx.beginPath();
         ctx.moveTo(this.startX, this.startY);
-        const controlX = (this.startX + this.targetX) / 2 + Math.sin(this.progress * Math.PI) * this.curveFactor;
-        const controlY = (this.startY + this.targetY) / 2;
-
+        const controlX = (this.startX + this.targetX) / 2 + Math.sin(this.progress * Math.PI) * (this.curveFactor * 0.5);
+        const controlY = (this.startY + this.targetY) / 2 + 15;
         ctx.quadraticCurveTo(controlX, controlY, currentX, currentY);
-        ctx.strokeStyle = '#386629';
+        ctx.strokeStyle = '#2d5a1e';
         ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Girasol al terminar de crecer el tallo
-        if (this.progress > 0.2) {
-          const scale = (this.progress - 0.2) / 0.8;
-          ctx.save();
-          ctx.translate(currentX, currentY);
-          ctx.scale(scale, scale);
+        // Flor
+        const scale = this.progress;
+        ctx.save();
+        ctx.translate(currentX, currentY);
+        ctx.scale(scale, scale);
 
-          // Hojas de Eucalipto
-          this.drawEucalyptus();
+        this.drawEucalyptus();
 
-          // Pétalos amarillos en 2 capas
-          const numPetals = 24;
-          for (let layer = 0; layer < 2; layer++) {
-            ctx.fillStyle = layer === 0 ? '#f59e0b' : '#facc15';
-            for (let i = 0; i < numPetals; i++) {
-              ctx.save();
-              const angle = (i * 2 * Math.PI) / numPetals + (layer * Math.PI / numPetals);
-              ctx.rotate(angle);
-              
-              ctx.beginPath();
-              ctx.moveTo(0, 0);
-              ctx.quadraticCurveTo(-this.size * 0.25, -this.size * 0.6, 0, -this.size);
-              ctx.quadraticCurveTo(this.size * 0.25, -this.size * 0.6, 0, 0);
-              ctx.fill();
-              ctx.restore();
-            }
+        const numPetals = 24;
+        for (let layer = 0; layer < 2; layer++) {
+          ctx.fillStyle = layer === 0 ? '#f59e0b' : '#facc15';
+          for (let i = 0; i < numPetals; i++) {
+            ctx.save();
+            const angle = (i * 2 * Math.PI) / numPetals + (layer * Math.PI / numPetals);
+            ctx.rotate(angle);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-this.size * 0.25, -this.size * 0.65, 0, -this.size);
+            ctx.quadraticCurveTo(this.size * 0.25, -this.size * 0.65, 0, 0);
+            ctx.fill();
+            ctx.restore();
           }
-
-          // Centro café oscuro de girasol
-          ctx.beginPath();
-          ctx.arc(0, 0, this.size * 0.42, 0, Math.PI * 2);
-          ctx.fillStyle = '#291409';
-          ctx.fill();
-
-          // Textura interior del girasol
-          ctx.beginPath();
-          ctx.arc(0, 0, this.size * 0.35, 0, Math.PI * 2);
-          ctx.fillStyle = '#180a04';
-          ctx.fill();
-
-          ctx.restore();
         }
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.38, 0, Math.PI * 2);
+        ctx.fillStyle = '#291409';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size * 0.30, 0, Math.PI * 2);
+        ctx.fillStyle = '#180a04';
+        ctx.fill();
+
+        ctx.restore();
       }
 
       drawEucalyptus() {
         ctx.fillStyle = '#4d7c6f';
         for (let i = 0; i < 3; i++) {
           ctx.save();
-          ctx.rotate((i * Math.PI * 2) / 3 + 0.5);
+          ctx.rotate((i * Math.PI * 2) / 3 + 0.4);
           ctx.beginPath();
-          ctx.ellipse(0, -this.size * 1.1, 8, 14, 0, 0, Math.PI * 2);
+          ctx.ellipse(0, -this.size * 0.95, 7, 13, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
       }
     }
 
-    // Dibujar el envoltorio idéntico a la imagen (Papel plisado en capas + Moño elegante)
-    function drawBouquetWrapper() {
+    function drawBouquet() {
       const cx = width / 2;
-      const cy = height * 0.65;
+      const cy = height * 0.62;
 
       ctx.save();
 
-      // Capa Trasera Plisada (Puntas de abanico estilo coreano)
-      ctx.fillStyle = '#f3e8e1';
-      ctx.strokeStyle = '#e2d1c3';
+      // 1. Papel Trasero
+      ctx.fillStyle = '#ebdcd1';
+      ctx.strokeStyle = '#d2c0b2';
       ctx.lineWidth = 2;
 
-      const peaks = 9;
       ctx.beginPath();
-      ctx.moveTo(cx - 240, cy - 60);
-      for (let i = 0; i <= peaks; i++) {
-        const x = cx - 240 + (i * 480 / peaks);
-        const y = cy - 120 + (i % 2 === 0 ? -30 : 20);
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(cx + 240, cy - 60);
-      ctx.lineTo(cx + 70, cy + 250);
-      ctx.lineTo(cx - 70, cy + 250);
+      ctx.moveTo(cx - 240, cy - 90);
+      ctx.quadraticCurveTo(cx, cy - 150, cx + 240, cy - 90);
+      ctx.quadraticCurveTo(cx + 120, cy + 110, cx + 45, cy + 220);
+      ctx.lineTo(cx - 45, cy + 220);
+      ctx.quadraticCurveTo(cx - 120, cy + 110, cx - 240, cy - 90);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Capa Frontal Traslúcida con borde blanco
-      ctx.fillStyle = 'rgba(255, 248, 240, 0.85)';
+      // 2. Flores
+      flowers.forEach(f => f.draw());
+
+      // 3. Papel Frontal
+      ctx.fillStyle = 'rgba(255, 250, 245, 0.96)';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 3;
 
       ctx.beginPath();
-      ctx.moveTo(cx - 220, cy - 30);
-      ctx.lineTo(cx - 150, cy + 100);
-      ctx.lineTo(cx - 60, cy + 250);
-      ctx.lineTo(cx + 60, cy + 250);
-      ctx.lineTo(cx + 150, cy + 100);
-      ctx.lineTo(cx + 220, cy - 30);
-      ctx.lineTo(cx, cy + 60);
+      ctx.moveTo(cx - 240, cy - 90);
+      ctx.quadraticCurveTo(cx - 80, cy + 30, cx, cy + 160);
+      ctx.lineTo(cx - 40, cy + 220);
+      ctx.quadraticCurveTo(cx - 110, cy + 110, cx - 240, cy - 90);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Moño de Cinta Satinada Blanca/Beige
+      ctx.beginPath();
+      ctx.moveTo(cx + 240, cy - 90);
+      ctx.quadraticCurveTo(cx + 80, cy + 30, cx, cy + 160);
+      ctx.lineTo(cx + 40, cy + 220);
+      ctx.quadraticCurveTo(cx + 110, cy + 110, cx + 240, cy - 90);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // 4. Lazo
       ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#e2e8f0';
+      ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1.5;
 
-      // Nudo central
       ctx.beginPath();
-      ctx.arc(cx, cy + 180, 10, 0, Math.PI * 2);
+      ctx.arc(cx, cy + 160, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Lazos del moño
       ctx.beginPath();
-      ctx.ellipse(cx - 35, cy + 180, 32, 14, -Math.PI / 8, 0, Math.PI * 2);
-      ctx.ellipse(cx + 35, cy + 180, 32, 14, Math.PI / 8, 0, Math.PI * 2);
+      ctx.ellipse(cx - 35, cy + 160, 32, 14, -Math.PI / 8, 0, Math.PI * 2);
+      ctx.ellipse(cx + 35, cy + 160, 32, 14, Math.PI / 8, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Caídas del lazo
       ctx.beginPath();
-      ctx.moveTo(cx - 5, cy + 185);
-      ctx.quadraticCurveTo(cx - 25, cy + 240, cx - 45, cy + 280);
-      ctx.lineTo(cx - 30, cy + 285);
-      ctx.quadraticCurveTo(cx - 10, cy + 240, cx, cy + 190);
+      ctx.moveTo(cx - 5, cy + 165);
+      ctx.quadraticCurveTo(cx - 25, cy + 215, cx - 45, cy + 255);
+      ctx.lineTo(cx - 30, cy + 260);
+      ctx.quadraticCurveTo(cx - 10, cy + 215, cx, cy + 170);
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(cx + 5, cy + 185);
-      ctx.quadraticCurveTo(cx + 25, cy + 240, cx + 45, cy + 280);
-      ctx.lineTo(cx + 30, cy + 285);
-      ctx.quadraticCurveTo(cx + 10, cy + 240, cx, cy + 190);
+      ctx.moveTo(cx + 5, cy + 165);
+      ctx.quadraticCurveTo(cx + 25, cy + 215, cx + 45, cy + 255);
+      ctx.lineTo(cx + 30, cy + 260);
+      ctx.quadraticCurveTo(cx + 10, cy + 215, cx, cy + 170);
       ctx.fill();
 
       ctx.restore();
     }
 
-    // Clic para colocar girasoles
     window.addEventListener('click', (e) => {
       if (e.target.closest('#audioBtn') || flowerCount >= maxFlowers) return;
 
-      if (!isPlaying) {
-        audio.play().then(() => {
-          isPlaying = true;
-          audioBtn.style.opacity = '1';
-        }).catch(() => {});
-      }
+      initAudio();
+      const noteIndex = flowerCount % notes.length;
+      playNote(notes[noteIndex]);
 
-      // Área dentro de la copa del ramo
       const cx = width / 2;
-      const cy = height * 0.40;
-      const rx = Math.min(width * 0.32, 170);
-      const ry = Math.min(height * 0.15, 100);
+      const cy = height * 0.52;
+      const rx = Math.min(width * 0.28, 160);
+      const ry = Math.min(height * 0.12, 85);
 
-      const angle = Math.random() * Math.PI * 2;
-      const dist = Math.sqrt(Math.random());
+      const angle = (flowerCount / maxFlowers) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
+      const dist = 0.15 + 0.85 * Math.sqrt(Math.random());
       const targetX = cx + Math.cos(angle) * (rx * dist);
       const targetY = cy + Math.sin(angle) * (ry * dist);
 
@@ -412,15 +397,10 @@
       flowerCount++;
       countSpan.textContent = flowerCount;
 
-      // Incremento suave del volumen toque a toque
-      const volumeStep = (1.0 - 0.15) / maxFlowers;
-      audio.volume = Math.min(1.0, audio.volume + volumeStep);
-
       flowers.sort((a, b) => a.targetY - b.targetY);
 
       if (flowerCount >= maxFlowers) {
         counterUI.classList.add('ui-hidden');
-        audio.volume = 1.0;
 
         setTimeout(() => {
           sunsetBG.classList.add('sunset-visible');
@@ -433,16 +413,7 @@
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
-
-      // 1. Envoltorio del ramo de fondo
-      drawBouquetWrapper();
-
-      // 2. Girasoles dentro del ramo
-      flowers.forEach(f => {
-        f.update();
-        f.draw();
-      });
-
+      drawBouquet();
       requestAnimationFrame(animate);
     }
 
